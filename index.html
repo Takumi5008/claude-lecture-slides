@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude完全入門テキスト</title>
+  <style>
+    :root {
+      --accent: #d97706;
+      --accent-light: #fef3c7;
+      --bg: #fafaf9;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #1c1917;
+      --muted: #78716c;
+      --code-bg: #1e1e1e;
+      --code-text: #d4d4d4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
+      color: white;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+    .hero h1 {
+      font-size: clamp(22px, 5vw, 36px);
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 14px;
+      color: #a8a29e;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .toc {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      overflow-x: auto;
+    }
+    .toc-inner {
+      display: flex;
+      gap: 8px;
+      max-width: 720px;
+      margin: 0 auto;
+      min-width: max-content;
+    }
+    .toc a {
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .toc a:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    .prereq {
+      background: var(--accent-light);
+      border: 1px solid #fcd34d;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+    .prereq h3 { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 12px; }
+    .prereq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .prereq-item { font-size: 14px; }
+    .prereq-item span { color: var(--muted); }
+    .step-block {
+      margin-bottom: 48px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .step-num {
+      background: var(--accent);
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+    .step-header h2 {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .section h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .section h4 {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 16px 0 8px;
+      color: var(--text);
+    }
+    .section p { font-size: 15px; margin-bottom: 12px; }
+    .section p:last-child { margin-bottom: 0; }
+    .action-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-left: 4px solid #22c55e;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .action-box .action-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #16a34a;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .action-steps { list-style: none; }
+    .action-steps li {
+      font-size: 14px;
+      padding: 5px 0;
+      padding-left: 24px;
+      position: relative;
+    }
+    .action-steps li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 0;
+      font-weight: 800;
+      color: #22c55e;
+      font-size: 13px;
+    }
+    .check-box {
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+    .check-box::before {
+      content: "✓ 確認：";
+      font-weight: 700;
+      color: #2563eb;
+    }
+    .trouble-box {
+      background: #fef9c3;
+      border: 1px solid #fde047;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 12px 0;
+    }
+    .trouble-box .trouble-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #ca8a04;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+    .trouble-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .trouble-table td { padding: 6px 8px; vertical-align: top; border-bottom: 1px solid #fde047; }
+    .trouble-table tr:last-child td { border-bottom: none; }
+    .trouble-table td:first-child { font-weight: 600; white-space: nowrap; color: #92400e; width: 42%; }
+    code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      border-radius: 8px;
+      display: block;
+      padding: 16px 18px;
+      margin: 12px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    .copy-btn-wrap { position: relative; }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #374151;
+      color: #d1d5db;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #4b5563; }
+    .copy-btn.copied { background: #16a34a; color: white; }
+    .template-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .template-card .tc-head {
+      background: var(--accent-light);
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid #fcd34d;
+    }
+    .template-card code {
+      border-radius: 0;
+      margin: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 12px 0;
+    }
+    th {
+      background: #f5f5f4;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 13px;
+      border: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .tip {
+      background: #f5f3ff;
+      border: 1px solid #c4b5fd;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14px;
+      margin: 12px 0;
+    }
+    .tip strong { color: #7c3aed; }
+    .badge-free {
+      display: inline-block;
+      background: #dcfce7;
+      color: #16a34a;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .summary-table th { background: #1c1917; color: white; }
+    .summary-table td:first-child { font-weight: 700; }
+    .final-box {
+      background: linear-gradient(135deg, #1c1917, #292524);
+      color: white;
+      border-radius: 12px;
+      padding: 28px 24px;
+      text-align: center;
+      margin-top: 48px;
+    }
+    .final-box h2 { font-size: 20px; margin-bottom: 12px; }
+    .final-box p { font-size: 14px; color: #a8a29e; }
+    @media (max-width: 480px) {
+      .prereq-grid { grid-template-columns: 1fr; }
+      .hero { padding: 36px 20px 32px; }
+      .section { padding: 18px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">完全入門テキスト</div>
+  <h1>これだけ読めば<br>AIで仕事が自動化できる</h1>
+  <p>プログラミング不要・無料・スマホだけでOK</p>
+</div>
+
+<div class="toc">
+  <div class="toc-inner">
+    <a href="#step1">STEP1 準備</a>
+    <a href="#step2">STEP2 会話</a>
+    <a href="#step3">STEP3 整形</a>
+    <a href="#step4">STEP4 ツール作成</a>
+    <a href="#step5">STEP5 資料作成</a>
+    <a href="#summary">まとめ</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- prereq -->
+  <div class="prereq">
+    <h3>はじめに確認してください</h3>
+    <div class="prereq-grid">
+      <div class="prereq-item">✅ 必要：スマホ</div>
+      <div class="prereq-item">✅ 必要：メールアドレス</div>
+      <div class="prereq-item">✅ 必要：Wi-Fi or モバイル通信</div>
+      <div class="prereq-item">❌ 不要：プログラミング知識</div>
+      <div class="prereq-item">❌ 不要：クレジットカード・課金</div>
+      <div class="prereq-item">❌ 不要：パソコン</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 1 ===== -->
+  <div id="step1" class="step-block">
+    <div class="step-header">
+      <span class="step-num">STEP 1</span>
+      <h2>Claudeを使えるようにする</h2>
+    </div>
+
+    <div class="section">
+      <h3>1-1｜Claudeって何？（30秒で理解する）</h3>
+      <p>LINEで友達にメッセージを送ると返信が来ますよね。Claudeはそれと同じです。ただし相手がAIです。</p>
+      <p>どんな質問にも答えてくれて、文章を書いてくれて、資料を作ってくれます。<strong>しかも無料で使えます。</strong></p>
+    </div>
+
+    <div class="section">
+      <h3>1-2｜アカウントを作る <span class="badge-free">無料</span></h3>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること①｜Claudeのサイトを開く</div>
+        <ul class="action-steps">
+          <li data-n="1">スマホのブラウザを開く（iPhoneは「Safari」、Androidは「Chrome」）</li>
+          <li data-n="2">上部のURLバー（細長い入力欄）をタップする</li>
+          <li data-n="3">以下を入力して「開く」または「Go」を押す</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>claude.ai</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="check-box">「Claude」と書かれた画面が開いたらOK</div>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること②｜アカウントを作る</div>
+        <ul class="action-steps">
+          <li data-n="1">「Sign up」または「無料で始める」ボタンをタップする</li>
+          <li data-n="2">メールアドレスを入力して「Continue」をタップする</li>
+          <li data-n="3">パスワードを決めて入力する（英字＋数字の8文字以上、例：Work2024ab）</li>
+          <li data-n="4">「Continue」をタップする</li>
+          <li data-n="5">入力したメールアドレスに確認メールが届く</li>
+          <li data-n="6">メールアプリを開いて「Anthropic」または「Claude」からのメールを探す</li>
+          <li data-n="7">メール内の「Verify email address」をタップする</li>
+          <li data-n="8">Claudeの画面に戻ってくる</li>
+        </ul>
+      </div>
+      <div class="check-box">メッセージを入力できる画面が表示されていれば完了</div>
+
+      <div class="trouble-box">
+        <div class="trouble-label">⚠ うまくいかないとき</div>
+        <table class="trouble-table">
+          <tr><td>確認メールが来ない</td><td>迷惑メールフォルダを確認する</td></tr>
+          <tr><td>「すでに使われているメール」と出る</td><td>別のメールを使うか「Log in」を試す</td></tr>
+          <tr><td>英語で読めない</td><td>画面を長押し→「日本語に翻訳」を選ぶ</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>1-3｜無料プランでできること</h3>
+      <table>
+        <tr><th>機能</th><th>無料でできるか</th></tr>
+        <tr><td>質問する・文章を作ってもらう</td><td>✅ できる</td></tr>
+        <tr><td>メモを整形してもらう</td><td>✅ できる</td></tr>
+        <tr><td>自動化ツールを作る</td><td>✅ できる</td></tr>
+        <tr><td>1日に使える回数</td><td>✅ 20〜30回程度（この講座で十分）</td></tr>
+        <tr><td>課金・クレジットカード</td><td>❌ 不要</td></tr>
+      </table>
+      <div class="tip"><strong>結論：この講座の内容は全部無料でできます</strong></div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2 ===== -->
+  <div id="step2" class="step-block">
+    <div class="step-header">
+      <span class="step-num">STEP 2</span>
+      <h2>Claudeと会話する</h2>
+    </div>
+
+    <div class="section">
+      <h3>2-1｜最初のメッセージを送る</h3>
+      <p>Claudeのチャット画面を開くと、画面下部に入力欄があります（「Message Claude...」と書いてある）。</p>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること</div>
+        <ul class="action-steps">
+          <li data-n="1">画面下部の入力欄をタップする（キーボードが出てくる）</li>
+          <li data-n="2">以下をコピーして貼り付けるか、直接入力する</li>
+          <li data-n="3">右の送信ボタン（紙飛行機マーク）をタップする</li>
+          <li data-n="4">数秒後にClaudeから返答が来る</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>こんにちは</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="check-box">「こんにちは！」のような返答が表示されればOK</div>
+
+      <div class="tip">
+        <strong>気づいてほしいこと：</strong>返答が速い・日本語で送れば日本語で返ってくる・会話が続く
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>2-2｜質問してみる</h3>
+      <p>Claudeは検索エンジンとは違います。Googleで検索するとリンクの一覧が出ますが、Claudeは<strong>あなたへの回答を直接書いてくれます。</strong></p>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜以下を1つずつ送ってみる</div>
+        <ul class="action-steps">
+          <li data-n="1">下のプロンプトを1つコピーしてClaudeに送る</li>
+          <li data-n="2">返答を読む</li>
+          <li data-n="3">次のプロンプトを送る</li>
+        </ul>
+      </div>
+
+      <div class="copy-btn-wrap">
+        <code>「アポイント」ってどういう意味ですか？簡単に教えてください。</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>今日のランチ、何かおすすめを3つ教えてください。</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>仕事で使える丁寧な断り方を教えてください。具体例も出して。</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="check-box">それぞれの質問に対して具体的な答えが返ってくればOK</div>
+
+      <div class="trouble-box">
+        <div class="trouble-label">⚠ 重要：Claudeは会話をまたいで記憶しない</div>
+        <table class="trouble-table">
+          <tr><td>同じ会話の中</td><td>前の内容を覚えている</td></tr>
+          <tr><td>新しい会話を始めると</td><td>最初から話す必要がある</td></tr>
+        </table>
+        <p style="font-size:13px;margin-top:8px;color:#92400e;">対処法：よく使うプロンプトは自分でメモに保存しておく（STEP 3-3で説明）</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>2-3｜返答を修正してもらう</h3>
+      <p>最初の返答が気に入らなくても大丈夫。<strong>「修正の言葉」を送るだけで何度でも直してもらえます。無料です。</strong></p>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜修正を体験する</div>
+        <ul class="action-steps">
+          <li data-n="1">まずこれを送る</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>仕事のモチベーションを上げる方法を教えてください。</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <p style="font-size:14px;margin:8px 0;">返答が来たら続けてこれを送る：</p>
+      <div class="copy-btn-wrap">
+        <code>もっと短く、箇条書き3つにまとめて</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <p style="font-size:14px;margin:8px 0;">さらに続けてこれを送る：</p>
+      <div class="copy-btn-wrap">
+        <code>もっと具体的な行動レベルで書いて。「〇〇する」という形で</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="check-box">送るたびに返答が変化していればOK</div>
+
+      <h4>修正の言葉パターン集（保存推奨）</h4>
+      <table>
+        <tr><th>言いたいこと</th><th>送る言葉</th></tr>
+        <tr><td>短くしたい</td><td>もっと短く、〇行以内で</td></tr>
+        <tr><td>長くしたい</td><td>もっと詳しく、2倍の量で</td></tr>
+        <tr><td>箇条書きにしたい</td><td>箇条書きにして</td></tr>
+        <tr><td>表にしたい</td><td>表形式にして</td></tr>
+        <tr><td>難しすぎる</td><td>中学生でもわかるように言い換えて</td></tr>
+        <tr><td>もっと丁寧に</td><td>もっと丁寧な言い方にして</td></tr>
+        <tr><td>別の案がほしい</td><td>別のパターンも3つ出して</td></tr>
+        <tr><td>もっと具体的に</td><td>もっと具体的に。実際の例を出して</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3 ===== -->
+  <div id="step3" class="step-block">
+    <div class="step-header">
+      <span class="step-num">STEP 3</span>
+      <h2>自分のメモを整形してもらう</h2>
+    </div>
+
+    <div class="section">
+      <h3>3-1｜メモを貼り付けて整形する</h3>
+      <p>ここからが「使える」ステージです。自分が書いたメモや記録をClaudeに渡すと、<strong>きれいに整形してくれます。</strong>これだけで毎日の記録作業が数分で終わります。</p>
+
+      <h4>基本の構造（この形を覚えてください）</h4>
+      <div class="copy-btn-wrap">
+        <code>以下の〇〇をもとに〇〇を作ってください。
+
+---
+（ここに自分のメモを貼り付ける）
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="tip">「---」は区切り線です。メモの前後に入れることで「ここからここまでがメモです」とClaudeに伝えます。</div>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜サンプルで体験する</div>
+        <ul class="action-steps">
+          <li data-n="1">以下をそのままコピーしてClaudeに送る</li>
+          <li data-n="2">返ってきた日報を確認する</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>以下の訪問メモをもとに日報を作ってください。
+見出しをつけて、箇条書きで整理してください。
+
+---
+午前 田中さん宅 インターホン3回 留守 ポスト投函済み
+午後 鈴木さん宅 奥さんが対応 旦那さん不在 来週火曜日に再訪する約束
+夕方 山田さん宅 話聞いてもらえた 資料渡した 前向きに検討すると言っていた
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="check-box">訪問メモが整理された日報として返ってくればOK</div>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜自分のメモで試す</div>
+        <ul class="action-steps">
+          <li data-n="1">下のテンプレートをコピーする</li>
+          <li data-n="2">「---」の間に自分のメモを貼り付ける</li>
+          <li data-n="3">送信する</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>以下のメモをもとに日報を作ってください。
+見出しをつけて箇条書きで整理してください。
+
+---
+（ここを消して自分のメモを貼り付ける）
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>3-2｜出力形式を細かく指定する</h3>
+      <p>Claudeに「どんな形で返してほしいか」を詳しく伝えると、<strong>そのまま使えるものが返ってきます。指定が細かいほど使えるものが返ってきます。</strong></p>
+
+      <h4>指定できること一覧</h4>
+      <table>
+        <tr><th>指定したいこと</th><th>書き方の例</th></tr>
+        <tr><td>文字数</td><td>200字以内で / 500字程度で</td></tr>
+        <tr><td>形式</td><td>箇条書きで / 表形式で / メール形式で</td></tr>
+        <tr><td>見出し</td><td>見出しをつけてセクションに分けて</td></tr>
+        <tr><td>トーン（丁寧さ）</td><td>上司に送るビジネス文書として / お客様向けに / カジュアルに</td></tr>
+      </table>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜出力形式を指定して送る</div>
+        <ul class="action-steps">
+          <li data-n="1">以下をコピーしてClaudeに送る</li>
+          <li data-n="2">件名・本文・締めがセットになったメールが返ってくることを確認する</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>以下の内容をもとに、上司への週次報告メールを作ってください。
+件名から本文・締めまで全部書いてください。
+300字以内で、丁寧なビジネス敬語を使ってください。
+
+---
+今週の成果：新規アポ3件獲得、契約1件
+来週の予定：フォロー訪問5件、新規開拓エリアを広げる
+課題：断られた時の切り返しがまだ弱い
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+      <div class="check-box">件名・本文・締めがセットになったメールが返ってくればOK</div>
+    </div>
+
+    <div class="section">
+      <h3>3-3｜プロンプトを保存して毎回使えるようにする</h3>
+      <p>同じ作業を毎日・毎週やるなら、<strong>プロンプトを保存しておくと毎回コピペするだけで使えます。これが「管理ツール化」です。</strong></p>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜スマホのメモアプリに保存する</div>
+        <ul class="action-steps">
+          <li data-n="1">スマホのメモアプリを開く（iPhoneは「メモ」、Androidは「メモ」or「Googleキープ」）</li>
+          <li data-n="2">新しいメモを作成する</li>
+          <li data-n="3">タイトルを入力する（例：「Claude：日報作成」）</li>
+          <li data-n="4">本文に下のプロンプトを貼り付ける</li>
+          <li data-n="5">保存する</li>
+        </ul>
+      </div>
+
+      <h4>使うときの手順</h4>
+      <div class="action-box">
+        <div class="action-label">▶ 毎日の使い方（30秒で完了）</div>
+        <ul class="action-steps">
+          <li data-n="1">メモアプリを開いてプロンプトをコピーする</li>
+          <li data-n="2">Claudeを開いて新しい会話を始める</li>
+          <li data-n="3">プロンプトを貼り付ける</li>
+          <li data-n="4">「---」の間に今日のメモを書いて送信する</li>
+        </ul>
+      </div>
+
+      <h4>保存しておくと便利なプロンプト集</h4>
+
+      <div class="template-card">
+        <div class="tc-head">📝 日報作成</div>
+        <div class="copy-btn-wrap">
+          <code>以下の訪問メモをもとに日報を作ってください。
+訪問先・対応内容・結果・次回アクションの順で箇条書きにしてください。
+上司向けのビジネス文書として200字以内で。
+
+---
+（ここに今日のメモを貼り付ける）
+---</code>
+          <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        </div>
+      </div>
+
+      <div class="template-card">
+        <div class="tc-head">📧 週次報告メール</div>
+        <div class="copy-btn-wrap">
+          <code>以下の内容をもとに上司への週次報告メールを作ってください。
+件名・本文・締めをセットで。300字以内、丁寧な敬語で。
+
+---
+今週の成果：
+来週の予定：
+課題：
+---</code>
+          <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        </div>
+      </div>
+
+      <div class="template-card">
+        <div class="tc-head">📋 議事録作成</div>
+        <div class="copy-btn-wrap">
+          <code>以下のメモをもとに議事録を作ってください。
+日時・参加者・決定事項・次回アクション・期限の形式でまとめてください。
+
+---
+（ここにメモを貼り付ける）
+---</code>
+          <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        </div>
+      </div>
+
+      <div class="template-card">
+        <div class="tc-head">📱 SNS投稿文</div>
+        <div class="copy-btn-wrap">
+          <code>以下の情報をもとにInstagramの投稿キャプションを作ってください。
+親しみやすいトーンで、改行を入れて読みやすく、ハッシュタグ5つ込みで200字以内で。
+
+---
+商品名：
+特徴：
+ターゲット：
+伝えたいこと：
+---</code>
+          <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4 ===== -->
+  <div id="step4" class="step-block">
+    <div class="step-header">
+      <span class="step-num">STEP 4</span>
+      <h2>自分の管理ツールを作る</h2>
+    </div>
+
+    <div class="section">
+      <h3>4-1｜面倒な作業を書き出す</h3>
+      <p>ここからが「作れる」ステージです。まず<strong>自分が毎回時間を使っている作業を1つ書き出します。</strong></p>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜以下の3つを書く（紙でもメモでもOK）</div>
+        <ul class="action-steps">
+          <li data-n="1">①毎回時間がかかっていること：「〇〇するのが面倒」</li>
+          <li data-n="2">②どんな作業か（具体的に）：今はどうやってやっているか</li>
+          <li data-n="3">③節約できる時間：1回〇分 × 月〇回 = 月〇分</li>
+        </ul>
+      </div>
+
+      <h4>記入例①（営業系）</h4>
+      <div class="copy-btn-wrap">
+        <code>①面倒なこと：訪問後の記録をまとめるのが面倒
+②具体的に：手書きのメモをスマホで打ち直して日報にしている。1件3分×10件=1日30分
+③節約時間：1回30分 × 月20日 = 月600分（10時間）</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+
+      <h4>記入例②（SNS系）</h4>
+      <div class="copy-btn-wrap">
+        <code>①面倒なこと：投稿のキャプションを考えるのが毎回30分かかる
+②具体的に：商品の情報を見ながらゼロから文章を書いている
+③節約時間：1回30分 × 月20投稿 = 月600分（10時間）</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>4-2｜入力と出力を決める</h3>
+      <p>ツールの設計はシンプルです。<strong>「何を渡すか（入力）」と「何が返ってくれば嬉しいか（出力）」の2つを決めるだけです。</strong></p>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること｜以下の表を埋める</div>
+        <ul class="action-steps">
+          <li data-n="1">入力（Claudeに渡す情報）を決める</li>
+          <li data-n="2">出力（Claudeに作ってほしいもの）を決める</li>
+          <li data-n="3">形式・文字数・トーンを決める</li>
+        </ul>
+      </div>
+
+      <div class="copy-btn-wrap">
+        <code>入力（Claudeに渡すもの）：
+→ 自分が今持っている情報を書く
+　例：今日の訪問メモ（箇条書き）
+
+出力（Claudeに作ってほしいもの）：
+→ 完成形のイメージを書く
+　例：日報（上司に送れる形）
+
+出力の条件：
+　形式：箇条書き / 表 / 文章 / メール / その他
+　文字数：〇〇字以内
+　トーン：ビジネス / カジュアル / 丁寧 / その他</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>4-3｜プロンプトを組み立てる</h3>
+      <p>4-1と4-2で書いた内容をテンプレートに当てはめるだけで、<strong>自分用プロンプトが完成します。</strong></p>
+
+      <h4>プロンプト作成テンプレート</h4>
+      <div class="copy-btn-wrap">
+        <code>以下の〔入力〕をもとに、〔出力〕を作ってください。
+〔形式・文字数・トーンの条件〕
+
+---
+（ここに入力を貼り付ける）
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+
+      <h4>完成例①：訪問メモ → 日報</h4>
+      <div class="copy-btn-wrap">
+        <code>以下の訪問メモをもとに、上司に送る日報を作ってください。
+見出しつき箇条書きで、300字以内、丁寧なビジネス文書で。
+
+---
+（ここに今日の訪問メモを貼り付ける）
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+
+      <h4>完成例②：商品情報 → SNS投稿文</h4>
+      <div class="copy-btn-wrap">
+        <code>以下の情報をもとに、Instagramの投稿キャプションを作ってください。
+改行を入れて読みやすく、ハッシュタグ5つ込みで、200字以内の親しみやすい文体で。
+
+---
+商品名：
+特徴：
+ターゲット：
+今週伝えたいこと：
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>4-4｜うまくいかないときの修正方法</h3>
+      <p>最初から完璧なプロンプトはありません。<strong>返答が気に入らなかったら修正の言葉を送るだけで改善できます。何度修正しても無料です。</strong></p>
+
+      <table>
+        <tr><th>症状</th><th>修正の言葉</th></tr>
+        <tr><td>長すぎる</td><td>半分の長さにして</td></tr>
+        <tr><td>短すぎる</td><td>もっと詳しく、今の2倍の量で</td></tr>
+        <tr><td>堅すぎる</td><td>もっとカジュアルな言い方にして</td></tr>
+        <tr><td>柔らかすぎる</td><td>もっとビジネスらしい文体にして</td></tr>
+        <tr><td>的外れ</td><td>私が求めているのは〇〇です。作り直してください</td></tr>
+        <tr><td>情報が足りない</td><td>〇〇についても含めて作り直してください</td></tr>
+        <tr><td>全体的にダメ</td><td>最初からやり直してください。今度は〇〇に注意して</td></tr>
+      </table>
+
+      <h4>修正のコツ</h4>
+      <div class="trouble-box">
+        <div class="trouble-label">⚠ NG vs OK</div>
+        <table class="trouble-table">
+          <tr><td>NG：「違います」だけ</td><td>何が違うかわからないので改善されない</td></tr>
+          <tr><td>OK：「〇〇が違います。〇〇のようにしてください」</td><td>具体的に伝えると一発で直る</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STEP 5 ===== -->
+  <div id="step5" class="step-block">
+    <div class="step-header">
+      <span class="step-num">STEP 5</span>
+      <h2>どんな資料でも作れるようになる</h2>
+    </div>
+
+    <div class="section">
+      <h3>5-1｜MTG資料を作る</h3>
+
+      <div class="action-box">
+        <div class="action-label">▶ やること</div>
+        <ul class="action-steps">
+          <li data-n="1">以下をコピーしてClaudeに送る</li>
+          <li data-n="2">見出しつきの整理された資料が返ってくることを確認する</li>
+        </ul>
+      </div>
+      <div class="copy-btn-wrap">
+        <code>以下の情報をもとに、社内MTG用の資料を作ってください。
+見出しをつけて読みやすく整理してください。
+スライドに使えるようなコンパクトな文章で。
+
+---
+MTGのテーマ：今月の営業成績の振り返りと来月の目標設定
+参加者：営業チーム5名＋部長
+時間：30分
+共有したいこと：
+　今月の契約件数が目標の80%だった
+　原因はフォロー不足と判断
+　来月は訪問後24時間以内のフォロー電話を徹底する
+　目標は今月比120%
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>5-2｜議事録を作る</h3>
+      <div class="copy-btn-wrap">
+        <code>以下のメモをもとに議事録を作ってください。
+日時・参加者・議題・決定事項・次回アクション・担当者・期限の形式で整理してください。
+
+---
+（ここにMTG中に取ったメモを貼り付ける）
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>5-3｜提案書の骨子を作る</h3>
+      <div class="copy-btn-wrap">
+        <code>以下の情報をもとに、上司への提案書の骨子を作ってください。
+背景・課題・提案内容・期待効果・実施スケジュールの順でまとめてください。
+
+---
+提案したいこと：
+背景・理由：
+具体的な内容：
+期待できる効果：
+---</code>
+        <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>5-4｜どんな作業でも自動化できる公式</h3>
+      <p>ここまで来れば、<strong>どんな業務でも自動化できます。</strong>STEP4の流れを使えば何でも作れます。</p>
+
+      <div class="action-box">
+        <div class="action-label">▶ どんな作業でも自動化できる5ステップ</div>
+        <ul class="action-steps">
+          <li data-n="1">毎回時間がかかっている作業を1つ書く</li>
+          <li data-n="2">入力（渡す情報）を決める</li>
+          <li data-n="3">出力（欲しい成果物）を決める</li>
+          <li data-n="4">テンプレートに当てはめて送る</li>
+          <li data-n="5">返ってきたものが気に入らなければ修正の言葉を送る→完成したらメモに保存</li>
+        </ul>
+      </div>
+
+      <h4>作れるものの例</h4>
+      <table>
+        <tr><th>種類</th><th>具体例</th></tr>
+        <tr><td>書類・文書</td><td>日報・週報・月次報告・議事録・MTG資料・提案書・企画書・お礼メール・謝罪メール・依頼メール</td></tr>
+        <tr><td>営業</td><td>トークスクリプト・断り文句への切り返し・顧客アプローチ案・商談記録の要約・フォローメール</td></tr>
+        <tr><td>SNS・マーケ</td><td>投稿キャプション・投稿カレンダー案・ハッシュタグリスト・競合分析・改善案</td></tr>
+        <tr><td>思考・分析</td><td>選択肢の比較・問題の原因分析・アイデア出し・フィードバックのまとめ・数字の説明文</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== SUMMARY ===== -->
+  <div id="summary" class="step-block">
+    <div class="step-header">
+      <span class="step-num">まとめ</span>
+      <h2>全ステップ早見表</h2>
+    </div>
+    <table class="summary-table">
+      <tr><th>STEP</th><th>やること</th><th>できるようになること</th></tr>
+      <tr><td>1-1〜1-2</td><td>アカウント作成・無料プランを確認</td><td>Claudeを使い始める</td></tr>
+      <tr><td>2-1</td><td>最初のメッセージを送る</td><td>Claudeと会話する</td></tr>
+      <tr><td>2-2</td><td>質問してみる</td><td>欲しい情報を引き出す</td></tr>
+      <tr><td>2-3</td><td>返答を修正する</td><td>求める形に整える</td></tr>
+      <tr><td>3-1</td><td>メモを貼り付けて整形</td><td>記録作業を自動化する</td></tr>
+      <tr><td>3-2</td><td>出力形式を指定する</td><td>そのまま使えるものを作る</td></tr>
+      <tr><td>3-3</td><td>プロンプトを保存する</td><td>毎回コピペするだけで使える</td></tr>
+      <tr><td>4-1〜4-3</td><td>面倒な作業を書き出して→入力と出力を決めて→プロンプト完成</td><td>自分用ツールを作る</td></tr>
+      <tr><td>4-4</td><td>うまくいかないとき修正する</td><td>完成度を上げる</td></tr>
+      <tr><td>5-1〜5-4</td><td>MTG資料・議事録・提案書・何でも作る</td><td>完全に自走できる</td></tr>
+    </table>
+
+    <div class="final-box">
+      <h2>この資料を最初から順番にやれば<br>今日中に1つツールが完成します</h2>
+      <p>完成したプロンプトは必ずメモに保存してください。明日から毎日使えます。</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('code');
+  navigator.clipboard.writeText(code.textContent).then(() => {
+    btn.textContent = 'コピー済み';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'コピー';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
